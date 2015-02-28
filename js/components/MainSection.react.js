@@ -4,7 +4,7 @@ var TodoItem = require('./TodoItem.react');
 var MainSection = React.createClass({
 
   propTypes: {
-    allTodos: React.PropTypes.array.isRequired
+    allTodos: React.PropTypes.object.isRequired
   },
 
   render: function() {
@@ -16,10 +16,10 @@ var MainSection = React.createClass({
     }
 
     return (
-        <section id='main'>
-          <ul id='todo-list'>{todos}</ul>
-        </section>
-      );
+      <section id='main'>
+        <ul id='todo-list'>{todos}</ul>
+      </section>
+    );
   }
 });
 
