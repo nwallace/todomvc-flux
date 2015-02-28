@@ -30,6 +30,21 @@ var TodoActions = {
       id: id
     });
   },
+
+  edit: function(id) {
+    AppDispatcher.handleViewAction({
+      actionType: TodoConstants.TODO_EDIT,
+      id: id
+    });
+  },
+
+  update_text: function(id, text) {
+    AppDispatcher.handleViewAction({
+      actionType: TodoConstants.TODO_UPDATE_TEXT,
+      id: id,
+      text: text
+    });
+  }
 };
 
 module.exports = TodoActions;

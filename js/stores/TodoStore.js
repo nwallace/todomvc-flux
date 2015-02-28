@@ -12,7 +12,8 @@ function create(text) {
   _todos[id] = {
     id: id,
     text: text,
-    complete: false
+    complete: false,
+    editing: false
   };
 }
 
@@ -26,6 +27,18 @@ function complete(id) {
 
 function undo_complete(id) {
   _todos[id].complete = false;
+}
+
+function edit(id) {
+  _todos[id].editing = true;
+}
+
+function undo_edit(id) {
+  _todos[id].editing = false;
+}
+
+function update_text(id, text) {
+  _todos[id].text = text;
 }
 
 var TodoStore = assign({}, EventEmitter.prototype, {
@@ -70,6 +83,17 @@ var TodoStore = assign({}, EventEmitter.prototype, {
 
       case TodoConstants.TODO_UNDO_COMPLETE:
         undo_complete(action.id);
+        TodoStore.emitChange();
+        break;
+
+      case TodoConstants.TODO_UPDATE_TEXT:
+        update_text(action.id, action.text);
+        undo_edit(action.id);
+        TodoStore.emitChange();
+        break;
+
+      case TodoConstants.TODO_EDIT:
+        edit(action.id);
         TodoStore.emitChange();
         break;
     }
