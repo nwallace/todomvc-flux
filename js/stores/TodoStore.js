@@ -20,6 +20,14 @@ function destroy(id) {
   delete _todos[id];
 }
 
+function complete(id) {
+  _todos[id].complete = true;
+}
+
+function undo_complete(id) {
+  _todos[id].complete = false;
+}
+
 var TodoStore = assign({}, EventEmitter.prototype, {
   getAll: function() {
     return _todos;
@@ -52,6 +60,16 @@ var TodoStore = assign({}, EventEmitter.prototype, {
 
       case TodoConstants.TODO_DESTROY:
         destroy(action.id);
+        TodoStore.emitChange();
+        break;
+
+      case TodoConstants.TODO_COMPLETE:
+        complete(action.id);
+        TodoStore.emitChange();
+        break;
+
+      case TodoConstants.TODO_UNDO_COMPLETE:
+        undo_complete(action.id);
         TodoStore.emitChange();
         break;
     }
