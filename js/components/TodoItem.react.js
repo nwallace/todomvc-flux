@@ -58,7 +58,7 @@ var TodoItem = React.createClass({
   _onToggleComplete: function(event) {
     var todo = this.props.todo;
     if (todo.complete) {
-      TodoActions.undo_complete(todo.id);
+      TodoActions.undoComplete(todo.id);
     } else {
       TodoActions.complete(todo.id);
     }
@@ -69,7 +69,7 @@ var TodoItem = React.createClass({
   },
 
   _onChangeText: function(text) {
-    TodoActions.update_text(this.props.todo.id, text);
+    TodoActions.updateText(this.props.todo.id, text);
   }
 });
 

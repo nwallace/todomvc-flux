@@ -3,10 +3,12 @@ var TodoStore = require('../stores/TodoStore');
 var Header = require('./Header.react');
 var MainSection = require('./MainSection.react');
 var Footer = require('./Footer.react');
+var Filter = require('./Filter.react');
 
 function getTodoState() {
   return {
-    allTodos: TodoStore.getAll()
+    allTodos: TodoStore.getAll(),
+    currentFilter: TodoStore.getCurrentFilter()
   };
 }
 
@@ -25,11 +27,21 @@ var TodoApp = React.createClass({
   },
 
   render: function() {
+    var filters = [
+      <Filter key="All" label="All" selected={this.state.currentFilter == "All"} />,
+      <Filter key="Active" label="Active" selected={this.state.currentFilter == "Active"} />,
+      <Filter key="Completed" label="Completed" selected={this.state.currentFilter == "Completed"} />,
+    ];
+
+    var filteredTodos = TodoStore.getFilteredTodos(this.state.currentFilter);
     return (
       <div>
         <Header />
-        <MainSection allTodos={this.state.allTodos} />
-        <Footer allTodos={this.state.allTodos} />
+        <MainSection allTodos={filteredTodos} />
+        <Footer
+          allTodos={this.state.allTodos}
+          filters={filters}
+        />
       </div>
     );
   },

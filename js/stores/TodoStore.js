@@ -6,6 +6,7 @@ var assign = require('object-assign');
 var CHANGE_EVENT = 'change';
 
 var _todos = {}; // collection of todo items
+var _currentFilter = 'All';
 
 function create(text) {
   var id = Date.now();
@@ -25,7 +26,7 @@ function complete(id) {
   _todos[id].complete = true;
 }
 
-function undo_complete(id) {
+function undoComplete(id) {
   _todos[id].complete = false;
 }
 
@@ -33,15 +34,15 @@ function edit(id) {
   _todos[id].editing = true;
 }
 
-function undo_edit(id) {
+function undoEdit(id) {
   _todos[id].editing = false;
 }
 
-function update_text(id, text) {
+function updateText(id, text) {
   _todos[id].text = text;
 }
 
-function destroy_completed() {
+function destroyCompleted() {
   for (var todo in _todos) {
     if (_todos[todo].complete) {
       destroy(todo);
@@ -49,9 +50,34 @@ function destroy_completed() {
   }
 }
 
+function updateFilter(filter) {
+  _currentFilter = filter;
+}
+
 var TodoStore = assign({}, EventEmitter.prototype, {
   getAll: function() {
-    return _todos;
+    return TodoStore.getFilteredTodos('All');
+  },
+
+  getFilteredTodos: function(filter) {
+    var filteredTodos = {};
+    if (filter === 'Active') {
+      for (var key in _todos) {
+        if (!_todos[key].complete) filteredTodos[key] = _todos[key];
+      }
+      return filteredTodos;
+    } else if (filter === 'Completed') {
+      for (var key in _todos) {
+        if (_todos[key].complete) filteredTodos[key] = _todos[key];
+      }
+      return filteredTodos;
+    } else {
+      return _todos;
+    }
+  },
+
+  getCurrentFilter: function() {
+    return _currentFilter;
   },
 
   emitChange: function() {
@@ -90,13 +116,13 @@ var TodoStore = assign({}, EventEmitter.prototype, {
         break;
 
       case TodoConstants.TODO_UNDO_COMPLETE:
-        undo_complete(action.id);
+        undoComplete(action.id);
         TodoStore.emitChange();
         break;
 
       case TodoConstants.TODO_UPDATE_TEXT:
-        update_text(action.id, action.text);
-        undo_edit(action.id);
+        updateText(action.id, action.text);
+        undoEdit(action.id);
         TodoStore.emitChange();
         break;
 
@@ -106,7 +132,12 @@ var TodoStore = assign({}, EventEmitter.prototype, {
         break;
 
       case TodoConstants.TODO_DESTROY_COMPLETED:
-        destroy_completed();
+        destroyCompleted();
+        TodoStore.emitChange();
+        break;
+
+      case TodoConstants.TODO_UPDATE_FILTER:
+        updateFilter(action.filter);
         TodoStore.emitChange();
         break;
     }

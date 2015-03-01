@@ -24,7 +24,7 @@ var TodoActions = {
     });
   },
 
-  undo_complete: function(id) {
+  undoComplete: function(id) {
     AppDispatcher.handleViewAction({
       actionType: TodoConstants.TODO_UNDO_COMPLETE,
       id: id
@@ -38,7 +38,7 @@ var TodoActions = {
     });
   },
 
-  update_text: function(id, text) {
+  updateText: function(id, text) {
     AppDispatcher.handleViewAction({
       actionType: TodoConstants.TODO_UPDATE_TEXT,
       id: id,
@@ -46,9 +46,16 @@ var TodoActions = {
     });
   },
 
-  destroy_completed: function() {
+  destroyCompleted: function() {
     AppDispatcher.handleViewAction({
       actionType: TodoConstants.TODO_DESTROY_COMPLETED
+    });
+  },
+
+  updateFilter: function(filter) {
+    AppDispatcher.handleViewAction({
+      actionType: TodoConstants.TODO_UPDATE_FILTER,
+      filter: filter
     });
   }
 };
