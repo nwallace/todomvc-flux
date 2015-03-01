@@ -8,16 +8,19 @@ var Footer = React.createClass({
   },
 
   render: function() {
-    var count = 0;
-    for (var key in this.props.allTodos) { count += 1; }
+    var allTodos = this.props.allTodos;
+    var countRemaining = 0;
+    for (var key in allTodos) {
+      if (!allTodos[key].complete) countRemaining += 1;
+    }
     var itemsLeftPhrase = ' item';
-    if (count !== 1) itemsLeftPhrase += 's';
+    if (countRemaining !== 1) itemsLeftPhrase += 's';
     itemsLeftPhrase += ' left';
 
     return (
       <footer id='footer'>
         <span id='todo-count'>
-          <strong>{count}</strong>
+          <strong>{countRemaining}</strong>
           {itemsLeftPhrase}
         </span>
         <ul id='filters'>
