@@ -4,20 +4,17 @@ var TodoItem = require('./TodoItem.react');
 var MainSection = React.createClass({
 
   propTypes: {
-    allTodos: React.PropTypes.object.isRequired
+    todos: React.PropTypes.array.isRequired
   },
 
   render: function() {
-    var allTodos = this.props.allTodos;
-    var todos = [];
-
-    for (var key in allTodos) {
-      todos.push(<TodoItem key={key} todo={allTodos[key]} />);
-    }
+    var todoItems = this.props.todos.map(function(todo) {
+      return <TodoItem key={todo.cid} todo={todo} />;
+    });
 
     return (
       <section id='main'>
-        <ul id='todo-list'>{todos}</ul>
+        <ul id='todo-list'>{todoItems}</ul>
       </section>
     );
   }

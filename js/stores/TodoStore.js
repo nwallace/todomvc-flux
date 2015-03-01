@@ -2,53 +2,76 @@ var AppDispatcher = require('../dispatcher/AppDispatcher');
 var EventEmitter = require('events').EventEmitter;
 var TodoConstants = require('../constants/TodoConstants');
 var assign = require('object-assign');
+var Backbone = require('backbone');
 
 var CHANGE_EVENT = 'change';
 
-var _todos = {}; // collection of todo items
 var _currentFilter = 'All';
-
-function create(text) {
-  var id = Date.now();
-  _todos[id] = {
-    id: id,
-    text: text,
+var _Todo  = Backbone.Model.extend({
+  defaults: {
+    text: '',
     complete: false,
     editing: false
-  };
-}
+  },
 
-function destroy(id) {
-  delete _todos[id];
-}
+  complete: function() {
+    return this.get('complete');
+  },
 
-function complete(id) {
-  _todos[id].complete = true;
-}
+  editing: function() {
+    return this.get('editing');
+  },
 
-function undoComplete(id) {
-  _todos[id].complete = false;
-}
+  text: function() {
+    return this.get('text');
+  }
+});
 
-function edit(id) {
-  _todos[id].editing = true;
-}
+var _TodosCollection = Backbone.Collection.extend({
+  model: _Todo,
+  url: '/todos',
 
-function undoEdit(id) {
-  _todos[id].editing = false;
-}
+  destroy: function(id) {
+    this.remove(id);
+  },
 
-function updateText(id, text) {
-  _todos[id].text = text;
-}
+  complete: function(id) {
+    this.get(id).set({complete: true});
+  },
 
-function destroyCompleted() {
-  for (var todo in _todos) {
-    if (_todos[todo].complete) {
-      destroy(todo);
+  undoComplete: function(id) {
+    this.get(id).set({complete: false});
+  },
+
+  edit: function(id) {
+    this.get(id).set({editing: true});
+  },
+
+  undoEdit: function(id) {
+    this.get(id).set({editing: false});
+  },
+
+  updateText: function(id, text) {
+    this.get(id).set({text: text});
+  },
+
+  destroyCompleted: function() {
+    this.where({complete: true}).forEach(function(todo) {
+      todo.destroy();
+    });
+  },
+
+  filterTodos: function(filter) {
+    if (filter === 'Active') {
+      return this.where({complete: false});
+    } else if (filter === 'Completed') {
+      return this.where({complete: true});
+    } else {
+      return this.models;
     }
   }
-}
+});
+var _Todos = new _TodosCollection;
 
 function updateFilter(filter) {
   _currentFilter = filter;
@@ -60,20 +83,7 @@ var TodoStore = assign({}, EventEmitter.prototype, {
   },
 
   getFilteredTodos: function(filter) {
-    var filteredTodos = {};
-    if (filter === 'Active') {
-      for (var key in _todos) {
-        if (!_todos[key].complete) filteredTodos[key] = _todos[key];
-      }
-      return filteredTodos;
-    } else if (filter === 'Completed') {
-      for (var key in _todos) {
-        if (_todos[key].complete) filteredTodos[key] = _todos[key];
-      }
-      return filteredTodos;
-    } else {
-      return _todos;
-    }
+    return _Todos.filterTodos(filter);
   },
 
   getCurrentFilter: function() {
@@ -100,39 +110,39 @@ var TodoStore = assign({}, EventEmitter.prototype, {
       case TodoConstants.TODO_CREATE:
         text = action.text.trim();
         if (text !== '') {
-          create(text);
+          _Todos.add([{text: text}]);
           TodoStore.emitChange();
         }
         break;
 
       case TodoConstants.TODO_DESTROY:
-        destroy(action.id);
+        _Todos.destroy(action.id);
         TodoStore.emitChange();
         break;
 
       case TodoConstants.TODO_COMPLETE:
-        complete(action.id);
+        _Todos.complete(action.id);
         TodoStore.emitChange();
         break;
 
       case TodoConstants.TODO_UNDO_COMPLETE:
-        undoComplete(action.id);
+        _Todos.undoComplete(action.id);
         TodoStore.emitChange();
         break;
 
       case TodoConstants.TODO_UPDATE_TEXT:
-        updateText(action.id, action.text);
-        undoEdit(action.id);
+        _Todos.updateText(action.id, action.text);
+        _Todos.undoEdit(action.id);
         TodoStore.emitChange();
         break;
 
       case TodoConstants.TODO_EDIT:
-        edit(action.id);
+        _Todos.edit(action.id);
         TodoStore.emitChange();
         break;
 
       case TodoConstants.TODO_DESTROY_COMPLETED:
-        destroyCompleted();
+        _Todos.destroyCompleted();
         TodoStore.emitChange();
         break;
 

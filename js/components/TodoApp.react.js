@@ -37,7 +37,7 @@ var TodoApp = React.createClass({
     return (
       <div>
         <Header />
-        <MainSection allTodos={filteredTodos} />
+        <MainSection todos={filteredTodos} />
         <Footer
           allTodos={this.state.allTodos}
           filters={filters}

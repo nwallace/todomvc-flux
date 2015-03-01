@@ -12,17 +12,13 @@ var TodoItem = React.createClass({
   render: function() {
     var todo = this.props.todo;
 
-    var classNames = '';
-    if (todo.complete) classNames += 'completed ';
-    if (todo.editing) classNames += 'editing ';
-
     var input;
-    if (todo.editing) {
+    if (todo.editing()) {
       input =
         <TodoTextInput
           className='edit'
           onSave={this._onChangeText}
-          value={todo.text}
+          value={todo.text()}
         />;
     }
 
@@ -30,19 +26,19 @@ var TodoItem = React.createClass({
       <li
         key={todo.id}
         className={cx({
-          completed: todo.complete,
-          editing: todo.editing
+          completed: todo.complete(),
+          editing: todo.editing()
         })}
       >
         <div className='view'>
           <input
             type='checkbox'
             className='toggle'
-            checked={todo.complete}
+            checked={todo.complete()}
             onChange={this._onToggleComplete}
           />
           <label onDoubleClick={this._onDoubleClick}>
-            {todo.text}
+            {todo.text()}
           </label>
           <button className='destroy' onClick={this._onDestroyClick} />
         </div>
@@ -52,24 +48,24 @@ var TodoItem = React.createClass({
   },
 
   _onDestroyClick: function(event) {
-    TodoActions.destroy(this.props.todo.id);
+    TodoActions.destroy(this.props.todo.cid);
   },
 
   _onToggleComplete: function(event) {
     var todo = this.props.todo;
-    if (todo.complete) {
-      TodoActions.undoComplete(todo.id);
+    if (todo.complete()) {
+      TodoActions.undoComplete(todo.cid);
     } else {
-      TodoActions.complete(todo.id);
+      TodoActions.complete(todo.cid);
     }
   },
 
   _onDoubleClick: function(event) {
-    TodoActions.edit(this.props.todo.id);
+    TodoActions.edit(this.props.todo.cid);
   },
 
   _onChangeText: function(text) {
-    TodoActions.updateText(this.props.todo.id, text);
+    TodoActions.updateText(this.props.todo.cid, text);
   }
 });
 
