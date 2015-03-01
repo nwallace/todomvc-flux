@@ -44,6 +44,12 @@ var TodoActions = {
       id: id,
       text: text
     });
+  },
+
+  destroy_completed: function() {
+    AppDispatcher.handleViewAction({
+      actionType: TodoConstants.TODO_DESTROY_COMPLETED
+    });
   }
 };
 

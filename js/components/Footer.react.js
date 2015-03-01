@@ -1,9 +1,10 @@
 var React = require('react');
+var TodoActions = require('../actions/TodoActions');
 
 var Footer = React.createClass({
 
   propTypes: {
-    allTodos: React.PropTypes.array.isRequired
+    allTodos: React.PropTypes.object.isRequired
   },
 
   render: function() {
@@ -19,8 +20,18 @@ var Footer = React.createClass({
           <strong>{count}</strong>
           {itemsLeftPhrase}
         </span>
+        <ul id='filters'>
+          <li><a href='#' className='selected'>All</a></li>
+          <li><a href='#'>Active</a></li>
+          <li><a href='#'>Completed</a></li>
+        </ul>
+        <button id='clear-completed' onClick={this._onClearCompletedClick}>Clear completed</button>
       </footer>
     );
+  },
+
+  _onClearCompletedClick: function() {
+    TodoActions.destroy_completed();
   }
 });
 

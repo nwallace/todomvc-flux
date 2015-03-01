@@ -5,7 +5,7 @@ var assign = require('object-assign');
 
 var CHANGE_EVENT = 'change';
 
-var _todos = []; // collection of todo items
+var _todos = {}; // collection of todo items
 
 function create(text) {
   var id = Date.now();
@@ -39,6 +39,14 @@ function undo_edit(id) {
 
 function update_text(id, text) {
   _todos[id].text = text;
+}
+
+function destroy_completed() {
+  for (var todo in _todos) {
+    if (_todos[todo].complete) {
+      destroy(todo);
+    }
+  }
 }
 
 var TodoStore = assign({}, EventEmitter.prototype, {
@@ -94,6 +102,11 @@ var TodoStore = assign({}, EventEmitter.prototype, {
 
       case TodoConstants.TODO_EDIT:
         edit(action.id);
+        TodoStore.emitChange();
+        break;
+
+      case TodoConstants.TODO_DESTROY_COMPLETED:
+        destroy_completed();
         TodoStore.emitChange();
         break;
     }
